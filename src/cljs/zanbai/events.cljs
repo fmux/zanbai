@@ -47,8 +47,7 @@
 (reg-event-db
   :logout-succeeded
   (fn [db _]
-    (do (println "Logout succeeded")
-    (dissoc db :username))))
+    (dissoc db :username)))
 
 (reg-event-db
   :logout-failed

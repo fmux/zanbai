@@ -19,22 +19,23 @@
               [:h3 "Welcome to zanbai!"
                 ;(when @login-pending? [:span " " [:small "Logging in..."]])  ;TODO: make less intrusive
               ]
-              [:div.input-group
-                [:input#username.form-control
-                  {
-                    :type "text"
-                    :placeholder "Enter Username"
-                    :required true
-                  }
-                ]
-                [:span.input-group-btn
-                  [:button#login-button.btn.btn-primary
+              [:form
+                [:div.input-group
+                  [:input#username.form-control
                     {
-                      :type "submit"
-                      :disabled @login-pending?  ;TODO: disable also when input is empty
-                      :on-click #(dispatch [:send-login-request (.val (js/$ "#username"))])
+                      :type "text"
+                      :placeholder "Enter Username"
+                      :required true
                     }
-                    "Login"]]]]]]]]))
+                  ]
+                  [:span.input-group-btn
+                    [:button#login-button.btn.btn-primary
+                      {
+                        :type "submit"
+                        :disabled @login-pending?  ;TODO: disable also when input is empty
+                        :on-click #(do (dispatch [:send-login-request (-> js/document (.getElementById "username") .-value)]) (.preventDefault %))
+                      }
+                      "Login"]]]]]]]]]))
 
 (defn main []
   (let
@@ -57,7 +58,7 @@
                   ]
                   [:ul.dropdown-menu
                     ;TODO: prevent browser from navigating to "#"
-                    [:li [:a {:href "#" :on-click #(do (dispatch [:logout]) false)} "Logout"]]
+                    [:li [:a {:href "#" :on-click #(do (dispatch [:logout]) (.preventDefault %))} "Logout"]]
                   ]
                 ]
               ]
