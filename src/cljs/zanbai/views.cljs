@@ -53,12 +53,12 @@
               [:h1.panel-title "Currently Online"
                 [:div.pull-right.btn-group
                   [:span#my-user.dropdown-toggle {:data-toggle "dropdown"}
-                    @username " "
+                    [:span.glyphicon.glyphicon-user]
+                    " " @username " "
                     [:span.caret]
                   ]
-                  [:ul.dropdown-menu
-                    ;TODO: prevent browser from navigating to "#"
-                    [:li [:a {:href "#" :on-click #(do (dispatch [:logout]) (.preventDefault %))} "Logout"]]
+                  [:ul.dropdown-menu.dropdown-menu-right
+                    [:li [:a {:href "#" :on-click #(do (dispatch [:logout]) (.preventDefault %))} [:span.glyphicon.glyphicon-off] " Logout"]]
                   ]
                 ]
               ]
