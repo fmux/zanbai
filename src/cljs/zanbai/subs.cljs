@@ -16,3 +16,8 @@
   :username
   (fn [db]
     (:username db)))
+
+(reg-sub
+  :users
+  (fn [db]
+    (:users db)))

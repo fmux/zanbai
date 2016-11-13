@@ -80,7 +80,8 @@
     ; TODO: user should be set from cookie!!!
     {:status 200
      :headers {"Content-Type" "application/json"}
-     :body (get-pending-messages user)
+     :body {:pending-messages (get-pending-messages user)
+            :users (:users @app-state)}
     }
   )
   (resources "/")
