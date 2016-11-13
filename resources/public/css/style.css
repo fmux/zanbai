@@ -20,6 +20,11 @@
     background-color: khaki;
 }
 
+#my-user {
+    cursor: pointer;
+    box-shadow: none;
+}
+
 /*.conversation {
     border: 1px solid black;
     max-width: 600px;

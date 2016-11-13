@@ -59,31 +59,39 @@
             :status 200
             :headers {"Content-Type" "application/json"}
             :body { :users (:users @app-state) }
+          }))))
+  (POST "/logout" request
+    (let [username (get-in request [:body "username"])]
+      (if (some #{username} (:users @app-state))
+        (do
+          (swap! app-state update :users #(remove #{username} %))
+          {
+            :status 200
+            :headers {"Content-Type" "application/json"}
+            :body { :app-state @app-state }
           }
         )
-      )
-    )
-  )
-  ; login
-  ; logout
+        {
+          :status 409  ; Conflict  ;TODO: appropriate HTTP code?
+          :headers {"Content-Type" "application/json"}
+          :body { :error-message (str "User " username " not in user list!") }
+        })))
   ; create conversation
   ; add user to conversation
   ; leave conversation
   (POST "/send_message/:from/:conversation" [from conversation]
-    ; TODO: from should be set from cookie!!!
+    ; TODO: from should be set from cookie!!! or body param
     {:status 200
      :headers {"Content-Type" "application/json"}
      :body (send-message from conversation "abcdefgh")  ; TODO: how to get text from JSON body???
-    }
-  )
+    })
   (GET "/get_pending_messages/:user" [user]
-    ; TODO: user should be set from cookie!!!
+    ; TODO: user should be set from cookie!!! or body param
     {:status 200
      :headers {"Content-Type" "application/json"}
      :body {:pending-messages (get-pending-messages user)
             :users (:users @app-state)}
-    }
-  )
+    })
   (resources "/")
 )
 

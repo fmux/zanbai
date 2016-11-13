@@ -34,6 +34,28 @@
     (update (dissoc db :login-pending?) :error-messages conj (get-in result [:response :error-message]))))
 
 (reg-event-fx
+  :logout
+  (fn [{:keys [db]} _]
+    {:http-xhrio {:method          :post
+                  :uri             "/logout"
+                  :params          (select-keys db [:username])
+                  :format          (ajax/json-request-format)
+                  :response-format (ajax/json-response-format {:keywords? true})
+                  :on-success      [:logout-succeeded]
+                  :on-failure      [:logout-failed]}}))
+
+(reg-event-db
+  :logout-succeeded
+  (fn [db _]
+    (do (println "Logout succeeded")
+    (dissoc db :username))))
+
+(reg-event-db
+  :logout-failed
+  (fn [db [_ result]]
+    (update db :error-messages conj (get-in result [:response :error-message]))))
+
+(reg-event-fx
   :get-pending-messages
   (fn [{:keys [db]} _]
     {:http-xhrio {:method          :get

@@ -16,20 +16,23 @@
         [:div.row
           [:div.col-xs-12.col-sm-6.col-sm-offset-3.col-md-4.col-md-offset-4
             [:div#login-jumbotron.jumbotron
-              [:h3 "Welcome to zanbai!"]
+              [:h3 "Welcome to zanbai!"
+                ;(when @login-pending? [:span " " [:small "Logging in..."]])  ;TODO: make less intrusive
+              ]
               [:div.input-group
                 [:input#username.form-control
                   {
                     :type "text"
                     :placeholder "Enter Username"
+                    :required true
                   }
                 ]
                 [:span.input-group-btn
                   [:button#login-button.btn.btn-primary
                     {
                       :type "submit"
-                      :disabled @login-pending?
-                      :on-click #(dispatch [:send-login-request (-> js/document (.getElementById "username") .-value)])
+                      :disabled @login-pending?  ;TODO: disable also when input is empty
+                      :on-click #(dispatch [:send-login-request (.val (js/$ "#username"))])
                     }
                     "Login"]]]]]]]]))
 
@@ -47,7 +50,16 @@
           [:div.panel.panel-primary
             [:div.panel-heading
               [:h1.panel-title "Currently Online"
-                [:span.my-user.pull-right @username]
+                [:div.pull-right.btn-group
+                  [:span#my-user.dropdown-toggle {:data-toggle "dropdown"}
+                    @username " "
+                    [:span.caret]
+                  ]
+                  [:ul.dropdown-menu
+                    ;TODO: prevent browser from navigating to "#"
+                    [:li [:a {:href "#" :on-click #(do (dispatch [:logout]) false)} "Logout"]]
+                  ]
+                ]
               ]
             ]
             [:div.list-group
