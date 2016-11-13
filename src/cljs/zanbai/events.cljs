@@ -12,7 +12,7 @@
 
 (reg-event-fx
   :send-login-request
-  (fn [{db :db} [_ username]]
+  (fn [{:keys [db]} [_ username]]
     {:db (assoc db :login-pending? true)
      :http-xhrio {:method          :post
                   :uri             "/login"
@@ -25,9 +25,9 @@
 (reg-event-db
   :login-succeeded
   (fn [db [_ username result]]
-    assoc (dissoc db :login-pending?) :username username :users (:users result)))
+    (assoc (dissoc db :login-pending?) :username username :users (:users result))))
 
 (reg-event-db
   :login-failed
   (fn [db [_ result]]
-    update (dissoc db :login-pending?) :error-messages conj (get-in result [:response :error-message])))
+    (update (dissoc db :login-pending?) :error-messages conj (get-in result [:response :error-message]))))
