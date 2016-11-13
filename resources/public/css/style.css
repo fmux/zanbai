@@ -1,0 +1,37 @@
+#login-form {
+    background-color: #ffb300;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    margin-bottom: 0;
+}
+
+#login-button {
+    margin-bottom: 28px;
+}
+
+#login-jumbotron {
+    background-color: khaki;
+}
+
+/*.conversation {
+    border: 1px solid black;
+    max-width: 600px;
+}
+
+.participants {
+    margin-bottom: 1ex;
+}
+
+.message {
+    max-width: 350px;
+}
+
+.message-inbound {
+    margin: 0 0 0 auto;
+    background-color: lightgrey;
+}
+.message-outbound {
+    margin: 0 auto 0 0;
+    background-color: lightblue;
+}*/
