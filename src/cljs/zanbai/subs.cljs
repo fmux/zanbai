@@ -26,3 +26,8 @@
  :selected-users
  (fn [db]
    (:selected-users db)))
+
+(reg-sub
+ :conversations
+ (fn [db]
+   (:conversations db)))

@@ -97,8 +97,7 @@
 (reg-event-db
  :started-conversation
  (fn [db [_ result]]
-   (do (println "Started conversation" result)
-       (assoc db :conversations result))))
+   (update db :conversations conj result)))
 
 (reg-event-db
  :starting-conversation-failed
