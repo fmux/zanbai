@@ -4,6 +4,7 @@
             [ring.util.response :refer [resource-response]]
             [ring.middleware.json :refer [wrap-json-body wrap-json-response]]
             [ring.middleware.reload :refer [wrap-reload]]
+            [clj-uuid :as uuid]
             [zanbai.core :refer [app-state]]))
 
 ;TODO: put this and the next somewhere else!
@@ -76,11 +77,23 @@
           :headers {"Content-Type" "application/json"}
           :body { :error-message (str "User " username " not in user list!") }
         })))
+  (POST "/start_conversation/:from" [from :as request] ; TODO: from should be set from cookie!!!
+        (let [users (conj (get-in request [:body "users"]) from)
+              users-map (into {} (for [user users] [user []]))
+              new-uuid (uuid/v1)]
+          (do
+            (swap! app-state update :conversations assoc new-uuid users-map)
+            {
+             :status 200
+             :headers {"Content-Type" "application/json"}
+             :body {:uuid new-uuid
+                    :users users}
+             })))
   ; create conversation
   ; add user to conversation
   ; leave conversation
   (POST "/send_message/:from/:conversation" [from conversation]
-    ; TODO: from should be set from cookie!!! or body param
+    ; TODO: from should be set from cookie!!!
     {:status 200
      :headers {"Content-Type" "application/json"}
      :body (send-message from conversation "abcdefgh")  ; TODO: how to get text from JSON body???
