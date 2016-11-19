@@ -38,47 +38,40 @@
              "Login"]]]]]]]]]))
 
 (defn user-list []
-  (let [
-        username (subscribe [:username])
+  (let [username (subscribe [:username])
         users (subscribe [:users])
         other-users (reaction (filter #(not= % @username) @users))
         other-users-sorted (reaction (sort @other-users))
-        selected-users (subscribe [:selected-users])
-        ]
-  [:div#user-list.col-xs-12.col-sm-6.col-sm-offset-6.col-md-4.col-md-offset-8
-   [:div.panel.panel-primary
-    [:div.panel-heading
-     [:h1.panel-title "Currently Online"
-      [:div.pull-right.btn-group
-       [:span#my-user.dropdown-toggle {:data-toggle "dropdown"}
-        [:span.glyphicon.glyphicon-user]
-        " " @username " "
-        [:span.caret]
-        ]
-       [:ul.dropdown-menu.dropdown-menu-right
-        [:li [:a {:href "#" :on-click #(do (dispatch [:logout]) (.preventDefault %))} [:span.glyphicon.glyphicon-off] " Logout"]]
-        ]
-       ]
-      ]
-     ]
-    [:div.list-group
-     (doall (for [user @other-users-sorted]
-              [(if (some #(= % user) @selected-users)
-                 :button.other-user.list-group-item.active
-                 :button.other-user.list-group-item)
-               {:key user
-                :on-click #(do (dispatch [:toggle-user user]) (.preventDefault %))}
-               user]))
-     (if (empty? @other-users)
-       [:button.start-conversation.list-group-item
-        "No users are currently online."]
-       (if (empty? @selected-users)
+        selected-users (subscribe [:selected-users])]
+    [:div#user-list.col-xs-12.col-sm-6.col-sm-push-6.col-md-4.col-md-push-8
+     [:div.panel.panel-primary
+      [:div.panel-heading
+       [:h1.panel-title "Currently Online"
+        [:div.pull-right.btn-group
+         [:span#my-user.dropdown-toggle {:data-toggle "dropdown"}
+          [:span.glyphicon.glyphicon-user]
+          " " @username " "
+          [:span.caret]]
+         [:ul.dropdown-menu.dropdown-menu-right
+          [:li [:a {:href "#" :on-click #(do (dispatch [:logout]) (.preventDefault %))} [:span.glyphicon.glyphicon-off] " Logout"]]]]]]
+      [:div.list-group
+       (doall (for [user @other-users-sorted]
+                [(if (some #(= % user) @selected-users)
+                   :button.other-user.list-group-item.active
+                   :button.other-user.list-group-item)
+                 {:key user
+                  :on-click #(do (dispatch [:toggle-user user]) (.preventDefault %))}
+                 user]))
+       (if (empty? @other-users)
          [:button.start-conversation.list-group-item
-          "Select some users to start a conversation."]
+          "No users are currently online."]
+         (if (empty? @selected-users)
+           [:button.start-conversation.list-group-item
+            "Select some users to start a conversation."]
                                         ; TODO: make active state stand out more (bootstrap-theme does a bad job)
-         [:button.start-conversation.list-group-item.active
-          {:on-click #(dispatch [:start-conversation @selected-users])}
-          "Start conversation!"]))]]]))
+           [:button.start-conversation.list-group-item.active
+            {:on-click #(dispatch [:start-conversation @selected-users])}
+            "Start conversation!"]))]]]))
 
 (defn conversation-widget [conversation]
   (let [username (subscribe [:username])
@@ -100,7 +93,7 @@
      [:div.row
       [user-list]
       (for [conversation @conversations]
-        [:div.col-xs-12.col-sm-6.col-md-4
+        [:div.col-xs-12.col-sm-6.col-sm-pull-6.col-md-4.col-md-pull-4
          {:key (:uuid conversation)}
          [conversation-widget conversation]])]]))
 
