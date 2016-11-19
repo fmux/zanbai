@@ -74,3 +74,17 @@
   :getting-pending-messages-failed
   (fn [db [_ result]]
     (update db :error-messages conj (get-in result [:response :error-message]))))
+
+(reg-event-db
+ :toggle-user
+ (fn [db [_ user]]
+   (if (some #(= % user) (:selected-users db))
+     (do (println "Removing user" user) (update-in db [:selected-users] disj user))
+     (do (println "Adding user" user) (update-in db [:selected-users] conj user)))))
+
+(reg-event-fx
+ :start-conversation
+ (fn [{:keys [db]} [_ users]]
+   (do
+     (println users)
+     {:db (assoc db :selected-users #{})})))
