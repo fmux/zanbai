@@ -103,3 +103,18 @@
  :starting-conversation-failed
  (fn [db [_ result]]
    (update db :error-messages conj (get-in result [:response :error-message]))))
+
+(reg-event-fx
+ :send-message
+ (fn [{:keys [db]} [_ uuid text]]
+   {:http-xhrio {:method          :post
+                 :uri             (str "/send_message/" (:username db) "/" uuid)
+                 :params          {:text text}
+                 :format          (ajax/json-request-format)
+                 :response-format (ajax/json-response-format {:keywords? true})
+                 :on-failure      [:sending-message-failed]}}))
+
+(reg-event-db
+ :sending-message-failed
+ (fn [db [_ result]]
+   (update db :error-messages conj (get-in result [:response :error-message]))))

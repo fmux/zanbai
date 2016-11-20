@@ -75,6 +75,8 @@
 
 (defn conversation-widget [conversation]
   (let [username (subscribe [:username])
+        uuid (reaction (:uuid conversation))
+        input-id (str @uuid "-message")
         users (reaction (:users conversation))
         other-users (reaction (filter #(not= % @username) @users))
         other-users-sorted (reaction (sort @other-users))]
@@ -89,7 +91,26 @@
      [:div.messages.panel-body
       [:div.message.message-outbound "Hello! how are you?"]
       [:div.message.message-inbound "I'm fine! How are you?"]
-      [:div.message.message-inbound "I'm also fine! Thanks for asking!"]]]))
+      [:div.message.message-inbound "I'm also fine! Thanks for asking!"]]
+     [:div.panel-footer
+      [:form
+       [:div.input-group
+        [:input.form-control
+         {
+          :id input-id
+          :type "text"
+          :placeholder "Enter Message"
+          :required true
+          }
+         ]
+        [:span.input-group-btn
+         [:button.btn.btn-primary
+          {
+           :type "submit"
+          ;:disabled @login-pending?  ;TODO: disable also when input is empty
+           :on-click #(do (dispatch [:send-message @uuid (-> js/document (.getElementById input-id) .-value)]) (.preventDefault %))
+           }
+          "Send"]]]]]]))
 
 (defn main []
   (let [conversations (subscribe [:conversations])]
