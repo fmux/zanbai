@@ -85,7 +85,11 @@
              last-users (vec (take-last 2 @other-users-sorted))]
          (str
           "Conversation with "
-          (apply str (flatten (interpose ", " (conj first-users (interpose " and " last-users)))))))]]]))
+          (apply str (flatten (interpose ", " (conj first-users (interpose " and " last-users)))))))]]
+     [:div.messages.panel-body
+      [:div.message.message-outbound "Hello! how are you?"]
+      [:div.message.message-inbound "I'm fine! How are you?"]
+      [:div.message.message-inbound "I'm also fine! Thanks for asking!"]]]))
 
 (defn main []
   (let [conversations (subscribe [:conversations])]

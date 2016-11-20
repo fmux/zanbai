@@ -25,24 +25,30 @@
     box-shadow: none;
 }
 
-/*.conversation {
-    border: 1px solid black;
-    max-width: 600px;
-}
-
-.participants {
-    margin-bottom: 1ex;
+.messages {
+    height: 280px;
+    overflow-y: auto;
 }
 
 .message {
-    max-width: 350px;
+    max-width: 70%;
+    border-radius: 6px;
+    padding: 5px 10px;
+    /*font-family: 'Amaranth', sans-serif;*/
+}
+
+.message + .message {
+    margin-top: 12px;
+}
+
+.message-outbound {
+    margin-left: 0;
+    margin-right: auto;
+    background-image: linear-gradient(to bottom, #cdecff, #96ccff);
 }
 
 .message-inbound {
-    margin: 0 0 0 auto;
-    background-color: lightgrey;
+    margin-left: auto;
+    margin-right: 0;
+    background-image: linear-gradient(to bottom, #E1F5C4, #EDE574);
 }
-.message-outbound {
-    margin: 0 auto 0 0;
-    background-color: lightblue;
-}*/
