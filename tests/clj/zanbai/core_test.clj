@@ -3,5 +3,6 @@
   (:use [clojure.test])
 )
 
-(deftest silly
-  (is (= 0 (- 1 1))))
+(deftest test-get-pending-messages
+  (is (= nil (get-pending-messages 'adam')))
+  )
