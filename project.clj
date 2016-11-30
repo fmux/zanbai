@@ -23,8 +23,10 @@
 
   :profiles
   {:dev
-   {:dependencies [[binaryage/devtools "0.8.2"]]
-
+   {:dependencies [[binaryage/devtools "0.8.2"]
+                   [com.cemerick/piggieback "0.2.1"]
+                   [figwheel-sidecar "0.5.2"]]
+    :source-paths ["src/cljs"]
     :plugins      [[lein-figwheel "0.5.7"]]
     }}
 
@@ -53,6 +55,9 @@
 
 
     ]}
+
+  :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]
+                 :init (-main)}
 
   :main zanbai.server
 
