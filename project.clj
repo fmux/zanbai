@@ -15,7 +15,7 @@
   :min-lein-version "2.5.3"
 
   :source-paths ["src/clj"]
-
+  :test-paths ["tests/clj"]
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
 
   :figwheel {:css-dirs ["resources/public/css"]
