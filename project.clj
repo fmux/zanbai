@@ -57,7 +57,7 @@
     ]}
 
   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]
-                 :init (-main)}
+                 :init (dev-main)}
 
   :main zanbai.server
 
