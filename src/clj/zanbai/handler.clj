@@ -10,49 +10,40 @@
 (defroutes routes
   (GET "/" [] (resource-response "index.html" {:root "public"}))
   (POST "/login" request
-    (let [username (get-in request [:body "username"])]
-      (if (some #{username} (:users @app-state))
-        {
-          :status 409  ; Conflict
-          :headers {"Content-Type" "application/json"}
-          :body { :error-message (str "User " username " already exists") }
-        }
-        (do
-          (swap! app-state update :users conj username)
-          {
-            :status 200
-            :headers {"Content-Type" "application/json"}
-            :body { :users (:users @app-state) }
-          }))))
+        (let [username (get-in request [:body "username"])]
+          (if (some #{username} (:users @app-state))
+            {:status 409  ; Conflict
+             :headers {"Content-Type" "application/json"}
+             :body { :error-message (str "User " username " already exists") }}
+            (do
+              (swap! app-state update :users conj username)
+              {:status 200
+               :headers {"Content-Type" "application/json"}
+               :body { :users (:users @app-state) }}))))
   (POST "/logout" request
-    (let [username (get-in request [:body "username"])]
-      (if (some #{username} (:users @app-state))
-        (do
-          (swap! app-state update :users #(remove #{username} %))
-          {
-            :status 200
-            :headers {"Content-Type" "application/json"}
-            :body { :app-state @app-state }
-          }
-        )
-        {
-          :status 409  ; Conflict  ;TODO: appropriate HTTP code?
-          :headers {"Content-Type" "application/json"}
-          :body { :error-message (str "User " username " not in user list!") }
-        })))
+        (let [username (get-in request [:body "username"])]
+          (if (some #{username} (:users @app-state))
+            (do
+              (swap! app-state update :users #(remove #{username} %))
+              {:status 200
+               :headers {"Content-Type" "application/json"}
+               :body { :app-state @app-state }})
+            {:status 409  ; Conflict  ;TODO: appropriate HTTP code?
+             :headers {"Content-Type" "application/json"}
+             :body { :error-message (str "User " username " not in user list!") }})))
   (POST "/start_conversation/:from" [from :as request]
         ; TODO: from should be set from cookie!!!
-        (let [users (conj (get-in request [:body "users"]) from)
-              users-map (into {} (for [user users] [user []]))
-              new-uuid (uuid/v1)]
+        (let [users (conj (get-in request [:body "users"]) from) 
+              new-uuid (uuid/to-string (uuid/v1))]
           (do
-            (swap! app-state update :conversations assoc new-uuid users-map)
-            {
-             :status 200
+            (doall
+             (for [user users]
+               ; TODO: maybe there is a more idiomatic way than doall for?
+               (swap! app-state update-in [:conversations user] assoc new-uuid [])))
+            {:status 200
              :headers {"Content-Type" "application/json"}
              :body {:uuid new-uuid
-                    :users users}
-             })))
+                    :users users}})))
   ; add user to conversation
   ; leave conversation
   (POST "/send_message/:from/:conversation" [from conversation :as request]

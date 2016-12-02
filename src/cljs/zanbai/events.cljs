@@ -65,10 +65,19 @@
                   :on-failure      [:getting-pending-messages-failed]}}))
 
 (reg-event-fx
-  :got-pending-messages
-  (fn [{:keys [db]} [_ result]]
-    {:db (assoc db :users (:users result))
-     :dispatch-later [{:ms 1000 :dispatch [:get-pending-messages]}]}))
+ :got-pending-messages
+ (fn [{:keys [db]} [_ result]]
+   (let [new-db (reduce
+                 (fn [old-db conversation]
+                   (update-in db [:conversations conversation]
+                              (fn [messages]
+                                (let [message (get-in result [:pending-messages conversation])]
+                                  (if (nil? messages)
+                                    [message]
+                                    (conj messages message))))))
+                 db (keys (:pending-messages result)))]
+     {:db (assoc new-db :users (:users result))
+      :dispatch-later [{:ms 1000 :dispatch [:get-pending-messages]}]})))
 
 (reg-event-db
   :getting-pending-messages-failed

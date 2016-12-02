@@ -68,7 +68,7 @@
          (if (empty? @selected-users)
            [:button.start-conversation.list-group-item
             "Select some users to start a conversation."]
-                                        ; TODO: make active state stand out more (bootstrap-theme does a bad job)
+           ; TODO: make active state stand out more (bootstrap-theme does a bad job)
            [:button.start-conversation.list-group-item.active
             {:on-click #(dispatch [:start-conversation @selected-users])}
             "Start conversation!"]))]]]))
@@ -96,20 +96,16 @@
       [:form
        [:div.input-group
         [:input.form-control
-         {
-          :id input-id
+         {:id input-id
           :type "text"
           :placeholder "Enter Message"
-          :required true
-          }
+          :required true}
          ]
         [:span.input-group-btn
          [:button.btn.btn-primary
-          {
-           :type "submit"
-          ;:disabled @login-pending?  ;TODO: disable also when input is empty
-           :on-click #(do (dispatch [:send-message @uuid (-> js/document (.getElementById input-id) .-value)]) (.preventDefault %))
-           }
+          {:type "submit"
+           ;:disabled @login-pending?  ;TODO: disable also when input is empty
+           :on-click #(do (dispatch [:send-message @uuid (-> js/document (.getElementById input-id) .-value)]) (.preventDefault %))}
           "Send"]]]]]]))
 
 (defn main []
