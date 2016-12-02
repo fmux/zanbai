@@ -1,9 +1,8 @@
 (ns zanbai.events
-    (:require [re-frame.core :refer [reg-event-db reg-event-fx]]
-              [zanbai.db :as db]
-              [day8.re-frame.http-fx]
-              [ajax.core :as ajax]
-              ))
+  (:require [re-frame.core :refer [reg-event-db reg-event-fx]]
+            [zanbai.db :as db]
+            [day8.re-frame.http-fx]
+            [ajax.core :as ajax]))
 
 (defn initialize-db [_ _] db/default-db)
 
@@ -52,10 +51,10 @@
                 (fn [old-db conversation]
                   (update-in db [:conversations conversation]
                              (fn [messages]
-                               (let [message (get-in result [:pending-messages conversation])]
+                               (let [new-messages (get-in result [:pending-messages conversation])]
                                  (if (nil? messages)
-                                   [message]
-                                   (conj messages message))))))
+                                   new-messages
+                                   (into [] (concat messages new-messages)))))))
                 db (keys (:pending-messages result)))]
     {:db (assoc new-db :users (:users result))
      :dispatch-later [{:ms 1000 :dispatch [:get-pending-messages]}]}))
