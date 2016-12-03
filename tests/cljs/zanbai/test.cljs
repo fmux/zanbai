@@ -7,3 +7,5 @@
 
 (defn ^:export run []
   (run-all-tests #"zanbai\..*-test"))
+
+(run)
