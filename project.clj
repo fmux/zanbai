@@ -8,7 +8,9 @@
                  [day8.re-frame/http-fx "0.1.2"]
                  [danlentz/clj-uuid "0.1.6"]
                  [ring/ring-json "0.4.0"]
-                 [ring "1.4.0"]]
+                 [ring "1.4.0"]
+                 ; TODO: include this only in dev?
+                 [com.lucasbradstreet/cljs-uuid-utils "1.0.2"]]
 
   :plugins [[lein-cljsbuild "1.1.4"]]
 
