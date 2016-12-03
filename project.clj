@@ -26,14 +26,13 @@
    {:dependencies [[binaryage/devtools "0.8.2"]
                    [com.cemerick/piggieback "0.2.1"]
                    [figwheel-sidecar "0.5.2"]]
-    :source-paths ["src/cljs"]
-    :plugins      [[lein-figwheel "0.5.7"]]
-    }}
+    :source-paths ["src/cljs" "tests/cljs"]
+    :plugins      [[lein-figwheel "0.5.7"]]}}
 
   :cljsbuild
   {:builds
    [{:id           "dev"
-     :source-paths ["src/cljs"]
+     :source-paths ["src/cljs" "tests/cljs"]
      :figwheel     {:on-jsload "zanbai.core/mount-root"}
      :compiler     {:main                 zanbai.core
                     :output-to            "resources/public/js/compiled/app.js"
@@ -41,8 +40,7 @@
                     :asset-path           "js/compiled/out"
                     :source-map-timestamp true
                     :preloads             [devtools.preload]
-                    :external-config      {:devtools/config {:features-to-install :all}}
-                    }}
+                    :external-config      {:devtools/config {:features-to-install :all}}}}
 
     {:id           "min"
      :source-paths ["src/cljs"]
@@ -51,10 +49,7 @@
                     :output-to       "resources/public/js/compiled/app.js"
                     :optimizations   :advanced
                     :closure-defines {goog.DEBUG false}
-                    :pretty-print    false}}
-
-
-    ]}
+                    :pretty-print    false}}]}
 
   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]
                  :init (dev-main)}
@@ -65,5 +60,4 @@
 
   :uberjar-name "zanbai.jar"
 
-  :prep-tasks [["cljsbuild" "once" "min"] "compile"]
-  )
+  :prep-tasks [["cljsbuild" "once" "min"] "compile"])
