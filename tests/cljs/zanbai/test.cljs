@@ -1,6 +1,7 @@
 (ns ^:figwheel-always zanbai.test
   (:require [cljs.test :refer-macros [run-all-tests]]
             [zanbai.core-test]
+            [zanbai.subs-test]
             [zanbai.events-test]))
 
 (enable-console-print!)
