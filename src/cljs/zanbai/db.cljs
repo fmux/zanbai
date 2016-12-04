@@ -6,15 +6,17 @@
 
 ;; data types
 (s/def ::user-name string?)
-(s/def ::user-selected boolean?)  ; whether the user is selected in the user list
+(s/def ::user-selected? boolean?)  ; whether the user is selected in the user list
+(s/def ::login-pending? boolean?)
+
+;; username
+(s/def ::username (s/nilable ::user-name))
 
 ;; list of users
 (s/def ::name ::user-name)
-(s/def ::selected ::user-selected)
-(s/def ::users
-  (s/keys
-   :req [::name]
-   :opt [::selected]))
+(s/def ::selected? ::user-selected?)
+(s/def ::user-data (s/keys :opt [::selected?]))
+(s/def ::users (s/map-of ::name ::user-data))
 
 ;; list of conversation participants
 (s/def ::participants (s/coll-of ::user-name))
@@ -24,7 +26,9 @@
 (s/def ::text string?)
 (s/def ::message
   (s/keys
-   :req [::from ::text]))
+   ;; these keywords are unqualified since they come directly from
+   ;; JSON - or can we somehow namespacify them?
+   :req-un [::from ::text]))
 (s/def ::messages (s/coll-of ::message))
 
 ;; conversation
@@ -42,10 +46,11 @@
 ;; app db
 (s/def ::db
   (s/keys
-   :req [::username ::users ::conversations ::error-messages]))
+   :req [::username ::users ::conversations ::error-messages]
+   :opt [::login-pending?]))
 
 (def default-db
   {::username nil
-   ::users #{}
+   ::users {}
    ::conversations {}
    ::error-messages []})
