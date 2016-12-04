@@ -23,10 +23,6 @@
           second-expected {:db second-db
                            :dispatch-later [{:ms 1000, :dispatch [:get-pending-messages]}]}]
       (testing "Starting new conversation"
-        (is (= (got-pending-messages {:db db-initial} [nil first-result]) first-expected)))
+        (is (= (got-pending-messages {:db db-initial} [first-result]) first-expected)))
       (testing "Adding new message to exisiting conversation"
-        (is (= (got-pending-messages {:db first-db} [nil second-result]) second-expected))))))
-
-(deftest supposed-to-fail
-  (testing "This is supposed to fail!"
-    (is (= 1 2))))
+        (is (= (got-pending-messages {:db first-db} [second-result]) second-expected))))))

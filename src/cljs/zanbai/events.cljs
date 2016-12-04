@@ -14,12 +14,12 @@
    :after (fn [context]
             (let [old-db (get-coeffect context :db)
                   new-db (get-effect context :db)
-                  spec :db/db]
+                  spec ::db/db]
               (when-not (s/valid? spec new-db)
                 (throw (ex-info (str "spec check failed: " (s/explain-str spec new-db)) {}))
                 (assoc-effect context :db old-db))))))
 
-(def default-interceptors [trim-v check-spec])
+(def standard-interceptors [trim-v check-spec])
 
 
 ;; handler functions
@@ -115,19 +115,31 @@
 
 
 ;; register event handlers
-(reg-event-db :initialize-db default-interceptors initialize-db)
-(reg-event-fx :send-login-request default-interceptors send-login-request)
-(reg-event-fx :login-succeeded default-interceptors login-succeeded)
-(reg-event-db :login-failed default-interceptors login-failed)
-(reg-event-fx :logout default-interceptors logout)
-(reg-event-db :logout-succeeded default-interceptors logout-succeeded)
-(reg-event-db :logout-failed default-interceptors logout-failed)
-(reg-event-fx :get-pending-messages default-interceptors get-pending-messages)
-(reg-event-fx :got-pending-messages default-interceptors got-pending-messages)
-(reg-event-db :getting-pending-messages-failed default-interceptors getting-pending-messages-failed)
-(reg-event-db :toggle-user default-interceptors toggle-user)
-(reg-event-fx :start-conversation default-interceptors start-conversation)
-(reg-event-db :started-conversation default-interceptors started-conversation)
-(reg-event-db :starting-conversation-failed default-interceptors starting-conversation-failed)
-(reg-event-fx :send-message default-interceptors send-message)
-(reg-event-db :sending-message-failed default-interceptors sending-message-failed)
+(defn std-reg-event-db
+  ([id handler-fn]
+   (std-reg-event-db id nil handler-fn))
+  ([id interceptors handler-fn]
+   (reg-event-db id [interceptors standard-interceptors] handler-fn)))
+
+(defn std-reg-event-fx
+  ([id handler-fn]
+   (std-reg-event-fx id nil handler-fn))
+  ([id interceptors handler-fn]
+   (reg-event-fx id [interceptors standard-interceptors] handler-fn)))
+
+(std-reg-event-db :initialize-db initialize-db)
+(std-reg-event-fx :send-login-request send-login-request)
+(std-reg-event-fx :login-succeeded login-succeeded)
+(std-reg-event-db :login-failed login-failed)
+(std-reg-event-fx :logout logout)
+(std-reg-event-db :logout-succeeded logout-succeeded)
+(std-reg-event-db :logout-failed logout-failed)
+(std-reg-event-fx :get-pending-messages get-pending-messages)
+(std-reg-event-fx :got-pending-messages got-pending-messages)
+(std-reg-event-db :getting-pending-messages-failed getting-pending-messages-failed)
+(std-reg-event-db :toggle-user toggle-user)
+(std-reg-event-fx :start-conversation start-conversation)
+(std-reg-event-db :started-conversation started-conversation)
+(std-reg-event-db :starting-conversation-failed starting-conversation-failed)
+(std-reg-event-fx :send-message send-message)
+(std-reg-event-db :sending-message-failed sending-message-failed)
