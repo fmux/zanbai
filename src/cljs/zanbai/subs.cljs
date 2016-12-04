@@ -1,33 +1,27 @@
 (ns zanbai.subs
   (:require-macros [reagent.ratom :refer [reaction]])
-  (:require [re-frame.core :refer [reg-sub]]))
+  (:require [re-frame.core :refer [reg-sub]]
+            [zanbai.db :as db]))
 
-(reg-sub
- :logged-in?
- (fn [db]
-   (contains? db :username)))
+(defn logged-in? [db]
+  (not (nil? (::db/username db))))
 
-(reg-sub
- :login-pending?
- (fn [db]
-   (contains? db :login-pending?)))
+(defn login-pending? [db] (boolean (::db/login-pending? db)))
 
-(reg-sub
- :username
- (fn [db]
-   (:username db)))
+(defn username [db] (::db/username db))
 
-(reg-sub
- :users
- (fn [db]
-   (:users db)))
+(defn users [db] (keys (::db/users db)))
 
-(reg-sub
- :selected-users
- (fn [db]
-   (:selected-users db)))
+(defn selected-users [db]
+  (let [users (::db/users db)]
+    (filter #(get-in users [% ::db/selected?]) (keys users))))
 
-(reg-sub
- :conversations
- (fn [db]
-   (:conversations db)))
+(defn conversations [db] (::db/conversations db))
+
+;; TODO: can we do this in a loop?
+(reg-sub :logged-in? logged-in?)
+(reg-sub :login-pending? login-pending?)
+(reg-sub :username username)
+(reg-sub :users users)
+(reg-sub :selected-users selected-users)
+(reg-sub :conversations conversations)
