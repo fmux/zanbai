@@ -53,3 +53,5 @@
 (deftest test-conversations
   (testing "Subscription :conversations"
     (is (empty? (conversations db/default-db)))))  ; TODO: some more tests here
+
+;; TODO: tests for :participants and :messages

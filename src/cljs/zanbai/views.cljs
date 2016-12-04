@@ -73,12 +73,12 @@
             {:on-click #(dispatch [:start-conversation @selected-users])}
             "Start conversation!"]))]]]))
 
-(defn conversation-widget [conversation]
+(defn conversation-widget [uuid]
   (let [username (subscribe [:username])
-        uuid (reaction (:uuid conversation))
-        input-id (str @uuid "-message")
-        users (reaction (:users conversation))
-        other-users (reaction (filter #(not= % @username) @users))
+        input-id (str (name uuid) "-message")
+        messages (subscribe [:messages uuid])
+        participants (subscribe [:participants uuid])
+        other-users (reaction (filter #(not= % @username) @participants))
         other-users-sorted (reaction (sort @other-users))]
     [:div.panel.panel-primary
      [:div.panel-heading
@@ -105,7 +105,7 @@
          [:button.btn.btn-primary
           {:type "submit"
            ;:disabled @login-pending?  ;TODO: disable also when input is empty
-           :on-click #(do (dispatch [:send-message @uuid (-> js/document (.getElementById input-id) .-value)]) (.preventDefault %))}
+           :on-click #(do (dispatch [:send-message uuid (-> js/document (.getElementById input-id) .-value)]) (.preventDefault %))}
           "Send"]]]]]]))
 
 (defn main []
@@ -113,10 +113,10 @@
     [:div#main.container-fluid
      [:div.row
       [user-list]
-      (for [conversation @conversations]
+      (for [uuid @conversations]
         [:div.col-xs-12.col-sm-6.col-sm-pull-6.col-md-4.col-md-pull-4
-         {:key (:uuid conversation)}
-         [conversation-widget conversation]])]]))
+         {:key uuid}
+         [conversation-widget uuid]])]]))
 
 (defn app []
   (let [logged-in? (subscribe [:logged-in?])]

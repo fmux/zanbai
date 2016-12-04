@@ -108,7 +108,11 @@
    :db (assoc db ::db/selected-users #{})})
 
 (defn started-conversation [db [result]]
-  (update db ::db/conversations conj result))
+  (let [conversation (keyword (:uuid result))
+        participants (:users result)]
+    (assoc-in db [::db/conversations conversation]
+              {::db/participants participants
+               ::db/messages []})))
 
 (defn starting-conversation-failed [db [result]]
   (update db ::db/error-messages conj (get-in result [:response :error-message])))
