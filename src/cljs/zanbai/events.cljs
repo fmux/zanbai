@@ -1,6 +1,6 @@
 (ns zanbai.events
   (:require [re-frame.core
-             :refer [reg-event-db reg-event-fx ->interceptor trim-v
+             :refer [reg-event-db reg-event-fx ->interceptor trim-v debug
                      get-coeffect get-effect assoc-effect]]
             [zanbai.db :as db]
             [day8.re-frame.http-fx]
@@ -15,18 +15,28 @@
             (let [old-db (get-coeffect context :db)
                   new-db (get-effect context :db)
                   spec ::db/db]
-              (when-not (s/valid? spec new-db)
-                (throw (ex-info (str "spec check failed: " (s/explain-str spec new-db)) {}))
-                (assoc-effect context :db old-db))))))
+              (if (s/valid? spec new-db)
+                context
+                (do
+                  ;; ideally the error message should just say "spec check failed"
+                  ;; with the rest of the info stuck in the map. However, at the
+                  ;; moment fighweel does not display the info map. See
+                  ;; https://github.com/bhauman/lein-figwheel/issues/487
+                  (throw (ex-info
+                          (str "spec check failed: " (s/explain-str spec new-db))
+                          {:old-db old-db
+                           :new-db new-db
+                           :explain-data (s/explain-data spec new-db)}))
+                  (assoc-effect context :db old-db)))))))
 
-(def standard-interceptors [trim-v check-spec])
+(def standard-interceptors [debug trim-v check-spec])
 
 
 ;; handler functions
 (defn initialize-db [_ _] db/default-db)
 
 (defn send-login-request [{:keys [db]} [username]]
-  {:db (assoc db :login-pending? true)
+  {:db (assoc db ::db/login-pending? true)
    :http-xhrio {:method          :post
                 :uri             "/login"
                 :params          {:username username}
@@ -36,30 +46,34 @@
                 :on-failure      [:login-failed]}})
 
 (defn login-succeeded [{:keys [db]} [username result]]
-  {:db (assoc (dissoc db :login-pending?) :username username :users (:users result))
+  {:db (-> db
+           (dissoc ::db/login-pending?)
+           (assoc ::db/username username ::db/users (into {} (map #(vector % {}) (:users result)))))
    :dispatch-later [{:ms 1000 :dispatch [:get-pending-messages]}]})
 
 (defn login-failed [db [result]]
-  (update (dissoc db :login-pending?) :error-messages conj (get-in result [:response :error-message])))
+  (-> db
+      (dissoc ::db/login-pending?)
+      (update ::db/error-messages conj (get-in result [:response :error-message]))))
 
 (defn logout [{:keys [db]} _]
   {:http-xhrio {:method          :post
                 :uri             "/logout"
-                :params          (select-keys db [:username])
+                :params          (select-keys db [::db/username])
                 :format          (ajax/json-request-format)
                 :response-format (ajax/json-response-format {:keywords? true})
                 :on-success      [:logout-succeeded]
                 :on-failure      [:logout-failed]}})
 
 (defn logout-succeeded [db _]
-  (dissoc db :username))
+  (dissoc db ::db/username))
 
 (defn logout-failed [db [result]]
-  (update db :error-messages conj (get-in result [:response :error-message])))
+  (update db ::db/error-messages conj (get-in result [:response :error-message])))
 
 (defn get-pending-messages [{:keys [db]} _]
   {:http-xhrio {:method          :get
-                :uri             (str "/get_pending_messages/" (:username db))
+                :uri             (str "/get_pending_messages/" (::db/username db))
                 :format          (ajax/json-request-format)
                 :response-format (ajax/json-response-format {:keywords? true})
                 :on-success      [:got-pending-messages]
@@ -69,49 +83,47 @@
   (let [conversations (keys (:pending-messages result))
         messages->db (fn [old-db conversation]
                        (let [new-messages (get-in result [:pending-messages conversation])]
-                         (update-in old-db [:conversations conversation]
+                         (update-in old-db [::db/conversations conversation]
                                     #(into (or % []) new-messages))))
         new-db (-> (reduce messages->db db conversations)
-                   (assoc :users (:users result)))]
+                   (assoc ::db/users (:users result)))]
     {:db new-db
      :dispatch-later [{:ms 1000 :dispatch [:get-pending-messages]}]}))
 
 (defn getting-pending-messages-failed [db [result]]
-  (update db :error-messages conj (get-in result [:response :error-message])))
+  (update db ::db/error-messages conj (get-in result [:response :error-message])))
 
 (defn toggle-user [db [user]]
-  (update-in db [:selected-users]
-             (if (some #(= % user) (:selected-users db)) disj conj)
-             user))
+  (update-in db [::db/users user ::db/selected?] not))
 
 (defn start-conversation [{:keys [db]} [users]]
   {:http-xhrio
    {:method          :post
-    :uri             (str "/start_conversation/" (:username db))
+    :uri             (str "/start_conversation/" (::db/username db))
     :params          {:users users}
     :format          (ajax/json-request-format)
     :response-format (ajax/json-response-format {:keywords? true})
     :on-success      [:started-conversation]
     :on-failure      [:starting-conversation-failed]}
-   :db (assoc db :selected-users #{})})
+   :db (assoc db ::db/selected-users #{})})
 
 (defn started-conversation [db [result]]
-  (update db :conversations conj result))
+  (update db ::db/conversations conj result))
 
 (defn starting-conversation-failed [db [result]]
-  (update db :error-messages conj (get-in result [:response :error-message])))
+  (update db ::db/error-messages conj (get-in result [:response :error-message])))
 
 (defn send-message [{:keys [db]} [uuid text]]
   {:http-xhrio
    {:method          :post
-    :uri             (str "/send_message/" (:username db) "/" uuid)
+    :uri             (str "/send_message/" (::db/username db) "/" uuid)
     :params          {:text text}
     :format          (ajax/json-request-format)
     :response-format (ajax/json-response-format {:keywords? true})
     :on-failure      [:sending-message-failed]}})
 
 (defn sending-message-failed [db [result]]
-  (update db :error-messages conj (get-in result [:response :error-message])))
+  (update db ::db/error-messages conj (get-in result [:response :error-message])))
 
 
 ;; register event handlers
